@@ -3,47 +3,60 @@ import Counter from "./Counter";
 import {createStore} from "redux";
 import {Provider} from "react-redux";
 
+// "Room", 2 lightSwitches, 1 light
 const initialState = {
-    count: 0
+    light: false,
+    switchA: false,
+    switchB: false
 };
 
-export const INCREMENT = 'INCREMENT';
-export const DECREMENT = 'DECREMENT';
-
-export function increment() {
-    return {
-        type: INCREMENT
-    }
-}
-
-export function decrement() {
-    return {
-        type: DECREMENT
-    }
-}
-
-function reducer(state = initialState, action) {
+// action? switchA on/off, switchB on/off
+function lightSwitchReducer(state = initialState, action) {
     switch(action.type) {
-        case 'INCREMENT':
+        case "A_ON":
             return {
-                count: state.count + 1
-            };
-        case 'DECREMENT':
+                switchA: true,
+                switchB: state.switchB,
+                light: true
+            }
+        case "A_OFF":
             return {
-                count: state.count - 1
-            };
-
+                switchA: false,
+                switchB: state.switchB,
+                light: state.switchB
+            }
+        case "B_ON":
+            return {
+                switchB: true,
+                switchA: state.switchA,
+                light: true
+            }
+        case "B_OFF":
+            return {
+                switchB: false,
+                switchA: state.switchA,
+                light: state.switchA
+            }
         default:
             return state;
     }
 }
 
-const store = createStore(reducer);
+const store = createStore(lightSwitchReducer);
+console.log('initial', store.getState());
+store.dispatch({ type: 'A_ON' });
+console.log(store.getState());
+store.dispatch({ type: 'B_ON' });
+console.log(store.getState());
+store.dispatch({ type: 'A_OFF' });
+console.log(store.getState());
+store.dispatch({ type: 'B_OFF' });
+console.log(store.getState());
 
 function App() {
   return (
     <Provider store={store}>
-      <Counter />
+      App
     </Provider>
   );
 }
