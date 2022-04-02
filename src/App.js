@@ -1,62 +1,49 @@
 import './App.css';
-import Counter from "./Counter";
-import {createStore} from "redux";
+import Counter from "./Reddit";
+import {createStore, applyMiddleware} from "redux";
 import {Provider} from "react-redux";
+import thunk from 'redux-thunk';
+import Reddit from "./Reddit";
+import {getPosts} from "./actions";
 
-// "Room", 2 lightSwitches, 1 light
 const initialState = {
-    light: false,
-    switchA: false,
-    switchB: false
+    isLoading: false,
+    error: null,
+    posts: []
 };
 
-// action? switchA on/off, switchB on/off
-function lightSwitchReducer(state = initialState, action) {
+function reducer(state = initialState, action) {
     switch(action.type) {
-        case "A_ON":
+        case "GET_POSTS_SUCCESS":
             return {
-                switchA: true,
-                switchB: state.switchB,
-                light: true
+                ...state,
+                posts: action.posts,
+                isLoading: false
             }
-        case "A_OFF":
+        case "GET_POSTS_BEGIN":
             return {
-                switchA: false,
-                switchB: state.switchB,
-                light: state.switchB
+                ...state,
+                isLoading: true,
+                error: null
             }
-        case "B_ON":
+        case "GET_POSTS_ERROR":
             return {
-                switchB: true,
-                switchA: state.switchA,
-                light: true
-            }
-        case "B_OFF":
-            return {
-                switchB: false,
-                switchA: state.switchA,
-                light: state.switchA
+                ...state,
+                isLoading: false,
+                error: action.error
             }
         default:
             return state;
     }
 }
 
-const store = createStore(lightSwitchReducer);
-console.log('initial', store.getState());
-store.dispatch({ type: 'A_ON' });
-console.log(store.getState());
-store.dispatch({ type: 'B_ON' });
-console.log(store.getState());
-store.dispatch({ type: 'A_OFF' });
-console.log(store.getState());
-store.dispatch({ type: 'B_OFF' });
-console.log(store.getState());
+const store = createStore(reducer, applyMiddleware(thunk));
+store.dispatch(getPosts());
 
 function App() {
   return (
     <Provider store={store}>
-      App
+      <Reddit />
     </Provider>
   );
 }
